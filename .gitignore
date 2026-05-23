@@ -1,0 +1,19 @@
+# Configuration Files
+flyway.conf
+mysql.conf
+Configurations/
+
+# Logs
+Logs/
+
+# Python generated Files
+__pycache__/
+.Python
+.cache
+
+# MacOS generated Files
+.ds_store
+
+# Venvs
+venv/
+env/
