@@ -7,6 +7,7 @@ import mimetypes
 from concurrent.futures import Future
 from typing import Callable
 from os import listdir
+from src.settings import settings
 
 
 class HTTPServer():
@@ -94,7 +95,7 @@ class HTTPServer():
     
     def log_request(self, Time, status_Code: int, Method: str, Route: str, IP: str) -> None:
         line = [Time, status_Code, Method, Route, IP]
-        with open("log.csv", "a", newline="") as f:
+        with open(settings.BASE_LOGFILE, "a", newline="") as f:
             csv_Writer = csv.writer(f)
             csv_Writer.writerow(line)
     
