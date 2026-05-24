@@ -8,6 +8,7 @@ from concurrent.futures import Future
 from typing import Callable
 from os import listdir
 from src.settings import settings
+from src.type_conventions.basic_content_types import basic_content_types
 
 
 class HTTPServer():
@@ -20,7 +21,7 @@ class HTTPServer():
         bufsize: int = 1024,
         response_Body_If_404: str | None = None,
         response_Body_If_Timeout: str | None = None,
-        timeout:float | int = 200
+        timeout: float = 200
     ) -> None:
         self.host = host
         self.port = port
