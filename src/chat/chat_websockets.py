@@ -9,7 +9,7 @@ from typing import Callable
 
 class ChatCommunication():
     def __init__(self):
-        self.rooms = Chats()
+        self.rooms = self.Chats()
 
     class Chats():
         def __init__(self):
