@@ -99,36 +99,8 @@ python src/main.py
 # Detach with Ctrl+A, then D
 ```
 
-### Running as a systemd service
-
-Create `/etc/systemd/system/chatserver.service`:
-
-```ini
-[Unit]
-Description=ChatServerBackend
-After=network.target mysql.service
-
-[Service]
-WorkingDirectory=/path/to/ChatServerBackend
-ExecStart=/usr/bin/python3 src/main.py
-Restart=on-failure
-User=youruser
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Then enable and start it:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable chatserver
-sudo systemctl start chatserver
-```
-
 ## Security Notes
 
-- Never commit `.env`, `Configurations/mysql.conf`, or `Logs/` to version control.
 - Restrict MySQL user permissions to only the database this server needs.
 - If exposing the server to the internet, consider placing it behind a reverse proxy (nginx or Caddy) and using TLS.
 
