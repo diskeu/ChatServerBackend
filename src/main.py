@@ -13,16 +13,16 @@ async def run():
         chat_start_page = chat_page.read()
 
     # Defining my Routes
-    server.add_Route(
+    http_server.add_Route(
         "/",
-        chat_page,
+        lambda : chat_start_page,
         "GET"
     )
-    server.mount_static("", "static/")
+    http_server.mount_static("", "src/chat/static/")
 
     # running services
     await asyncio.gather(
-        server.boot_Server(),
+        http_server.boot_Server(),
         chat_server.main()
     )
     

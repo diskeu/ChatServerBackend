@@ -5,7 +5,7 @@ import inspect
 import csv
 import mimetypes
 from concurrent.futures import Future
-from typing import Callable
+from typing import Callable, Any
 from os import listdir
 from src.settings import settings
 from src.type_conventions.basic_content_types import basic_content_types
@@ -91,7 +91,6 @@ class HTTPServer():
         for x in splitedBody:
             key, val = x.split("=")
             splited_Form_Elements[key] = val
-        print(splited_Form_Elements)
         
         return splited_Form_Elements
     
@@ -110,7 +109,7 @@ class HTTPServer():
             self.add_Route(path=rout+"/"+x, handler=lambda content=content: content, method_defined="GET", response_Content_Type=file_Type)        
 
     # gets items from request makes response, gives back future
-    def call_Route(self, request:bytes, response_Future, client_ip) -> Future[any]:
+    def call_Route(self, request:bytes, response_Future, client_ip) -> Future[Any] | None:
         # spliting lines from request
         lines: list = request.decode().split("\r\n")
 
@@ -130,13 +129,9 @@ class HTTPServer():
         requestLine: list = header[0].split(" ")
         method: str = requestLine[0]
         rout: str = requestLine[1]
-        print("Request Line: "+str(requestLine))
-        print("Method: "+method)
-        print("Request rout: "+rout)
         
         # Function that returns Response_Container with page_Not_Found_Response
         def page_Not_Found_Action():
-            print("Page Not found")
 
             # defining datetime
             now = datetime.datetime.now()
@@ -154,14 +149,12 @@ class HTTPServer():
             handler, method_defined, response_Content_Type, body_Needed, easy_Form_Handler = self.Routes[rout]
 
             if method != method_defined:
-                print(f"Definied Method = {method_defined}")
-                print(f"Used Method = {method}")
                 page_Not_Found_Action()
-                return  # leaving thread
+                return None
         
         else:
             page_Not_Found_Action()
-            return # leaving thread
+            return None
             
         # checking the type of Function and getting response Body from it
         # calling Function if Body is needed with body parameter
@@ -247,7 +240,7 @@ class HTTPServer():
         except asyncio.TimeoutError:
             writer.write(self.timeout_Response.encode())
         except (BrokenPipeError, ConnectionResetError):
-            print("BrokenPipeError or ConnectionResetError")
+            ...
         finally:
             writer.close()
             await writer.wait_closed()

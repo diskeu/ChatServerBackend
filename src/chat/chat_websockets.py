@@ -3,6 +3,7 @@ import datetime
 import csv
 import websockets
 import hashlib
+import random
 from concurrent.futures import Future
 from typing import Callable
 
@@ -42,19 +43,14 @@ class ChatCommunication():
             server_dscnt_Msg: str = f"{room.peers[peer.ws][1]} - {room.peers[peer.ws][0][:4]} disconnected"
             return server_dscnt_Msg
         
-        print(server_dscnt(client_Peer))
         room.peers.pop(client_Peer.ws)
-        if len(room.peers) < 2:
-            Close_All = True
-        else:
-            Close_All = False
+        close_all = True if len(room.peers) < 2 else False
         for peer in room.peers:
-            if peer != ws:
-                await peer.send(dscnt_Msg)
-                if Close_All:
-                    await peer.close(code=1000, reason=dscnt_Msg)
-                    print(server_dscnt(peer))
-                    room.peers.pop(peer)
+            await peer.send(dscnt_Msg)
+            if close_all:
+                await peer.close(code=1000, reason=dscnt_Msg)
+                server_dscnt(peer)
+                room.peers.pop(peer)
         return
 
     async def recv_Loop(self, room, client_Peer, msg_Alarm):
@@ -62,13 +58,9 @@ class ChatCommunication():
         try:
             while True:
                 msg = await ws.recv()
-                print(f"{client_Peer.name} - {client_Peer.id[:4]}: {msg}")
                 await msg_Alarm.put(msg)
         except websockets.ConnectionClosed:
-            await disconnect(
-                client_Peer=client_Peer,
-                room=room
-            )
+            await self.disconnect(client_Peer, room=room)
             return
         
     async def send_Loop(self, room, client_Peer, msg_Alarm):
@@ -85,13 +77,10 @@ class ChatCommunication():
                     if peer != ws:
                         await peer.send(msg)
         except websockets.ConnectionClosed:
-            await disconnect(
-                client_Peer=client_Peer,
-                room=room
-            )
+            await self.disconnect(client_Peer, room=room)
 
     def create_Peer(self, roomName, ws):
-        cur_Peer = Peer()
+        cur_Peer = self.Peer()
         cur_Peer.name = roomName
         cur_Peer.ws = ws
         num = random.randint(10000, 99999)
@@ -126,34 +115,33 @@ class ChatCommunication():
         chat_Type = await ws.recv()
         await ws.send("Enter Name")
         roomName = await ws.recv()
-        client_Peer = create_Peer(roomName=roomName, ws=ws)
+        client_Peer = self.create_Peer(roomName=roomName, ws=ws)
         async def find_Room(length):
             for room in self.rooms.chats:
                 if (len(room.peers) < room.len_Members) and (room.len_Members == length):
                     room.peers[client_Peer.ws] = [client_Peer.id, client_Peer.name]
-                    await join_Room(room=room, client_Peer=client_Peer)
+                    await self.join_Room(room=room, client_Peer=client_Peer)
                     msg_Alarm = asyncio.Queue()
                     return room, msg_Alarm
-            room = Chat()
+            room = self.Chat()
             self.rooms.chats.append(room)
             room.len_Members = length
             room.peers[client_Peer.ws] = [client_Peer.id, client_Peer.name]
             await room.create_Id()
             msg_Alarm = asyncio.Queue()
-            await join_Room(room=room, client_Peer=client_Peer)
+            await self.join_Room(room=room, client_Peer=client_Peer)
             return room, msg_Alarm
 
         if chat_Type == "/r":
             room, msg_Alarm = await find_Room(2)
         elif chat_Type == "/rc":
             room, msg_Alarm = await find_Room(5)
-        await breaking(
-                task1=recv_Loop, args1=(room, client_Peer, msg_Alarm),
-                task2=send_Loop, args2=(room, client_Peer, msg_Alarm)
+        await self.breaking(
+                task1=self.recv_Loop, args1=(room, client_Peer, msg_Alarm),
+                task2=self.send_Loop, args2=(room, client_Peer, msg_Alarm)
             )
         return
 
     async def main(self):
-        async with websockets.serve(handle_Client, "localhost", 8756):
-            print("Server runs...")
+        async with websockets.serve(self.handle_Client, "localhost", 8756):
             await asyncio.Future()
