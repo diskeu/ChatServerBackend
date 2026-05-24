@@ -9,6 +9,7 @@ from typing import Callable
 from os import listdir
 from src.settings import settings
 from src.type_conventions.basic_content_types import basic_content_types
+from src.type_conventions.encoding_needed import mimetype_encoding_needed
 
 
 class HTTPServer():
