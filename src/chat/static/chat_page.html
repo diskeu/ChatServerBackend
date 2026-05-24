@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Client</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Jacquard+12&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<h1 style="display: flex; justify-content: space-between; align-items: center;">
+  <span>Chat Server...</span>
+<img src="hands.png" alt="" width="400" style="
+  -webkit-mask-image: linear-gradient(to left, black 0%, transparent 100%);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: cover;
+  mask-image: linear-gradient(to left, black 0%, transparent 100%);
+  mask-repeat: no-repeat;
+  mask-size: cover;
+">
+</h1>
+
+<pre>
+ ________  ___  ________  ___  __    _______   ___  ___      ________  ________  ________     
+|\   ___ \|\  \|\   ____\|\  \|\  \ |\  ___ \ |\  \|\  \    |\   __  \|\   __  \|\   ____\    
+\ \  \_|\ \ \  \ \  \___|\ \  \/  /|\ \   __/|\ \  \\\  \   \ \  \|\  \ \  \|\  \ \  \___|    
+ \ \  \ \\ \ \  \ \_____  \ \   ___  \ \  \_|/_\ \  \\\  \   \ \  \\\  \ \   _  _\ \  \  ___  
+  \ \  \_\\ \ \  \|____|\  \ \  \\ \  \ \  \_|\ \ \  \\\  \ __\ \  \\\  \ \  \\  \\ \  \|\  \ 
+   \ \_______\ \__\____\_\  \ \__\\ \__\ \_______\ \_______\\__\ \_______\ \__\\ _\\ \_______\
+    \|_______|\|__|\_________\|__| \|__|\|_______|\|_______\|__|\|_______|\|__|\|__|\|_______|
+                  \|_________|
+
+</pre>
+
+<div>
+    <button class="terminal-btn" id="connectBtn">Connect</button>
+    <button class="terminal-btn" id="disconnectBtn">Disconnect</button>
+</div>
+
+<div>
+    <input class="terminal-input" type="text" id="nameInput" placeholder="Session name">
+    <button class="terminal-btn" id="sendNameBtn">Send name</button>
+</div>
+
+<div>
+    <input class="terminal-input" type="text" id="messageInput" placeholder="Enter message">
+    <button class="terminal-btn" id="sendBtn">Send</button>
+</div>
+
+<pre id="log"></pre>
+
+<script>
+    let socket = null;
+
+    const logEl = document.getElementById("log");
+    const connectBtn = document.getElementById("connectBtn");
+    const disconnectBtn = document.getElementById("disconnectBtn");
+    const sendBtn = document.getElementById("sendBtn");
+    const sendNameBtn = document.getElementById("sendNameBtn");
+    const messageInput = document.getElementById("messageInput");
+    const nameInput = document.getElementById("nameInput");
+
+    // 🔒 Anfangszustand: alles gesperrt
+    function setConnected(state) {
+        sendBtn.disabled = !state;
+        sendNameBtn.disabled = !state;
+        nameInput.disabled = !state;
+        messageInput.disabled = !state;
+    }
+
+    setConnected(false);
+
+    function log(message) {
+        logEl.textContent += message + "\n";
+        logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    connectBtn.addEventListener("click", () => {
+        if (socket && socket.readyState === WebSocket.OPEN) return;
+
+        logEl.textContent = "";
+        socket = new WebSocket("ws://127.0.0.1:8756");
+
+        socket.addEventListener("open", () => {
+            log("Connected...");
+            setConnected(true);
+        });
+
+        socket.addEventListener("message", (event) => {
+            log("-> " + event.data);
+        });
+
+        socket.addEventListener("close", () => {
+            log("Connection closed...");
+            setConnected(false);
+        });
+
+        socket.addEventListener("error", () => {
+            log("Connection error");
+            setConnected(false);
+        });
+    });
+
+    disconnectBtn.addEventListener("click", () => {
+        if (socket) socket.close();
+    });
+
+    sendBtn.addEventListener("click", () => {
+        const msg = messageInput.value.trim();
+        if (!msg) return;
+
+        socket.send(msg);
+        log("-> " + msg);
+        messageInput.value = "";
+    });
+
+    sendNameBtn.addEventListener("click", () => {
+        const name = nameInput.value.trim();
+        if (!name) {
+            log("Enter name first");
+            return;
+        }
+
+        socket.send(name);
+        log("Session name: " + name);
+    });
+</script>
+</body>
+</html>

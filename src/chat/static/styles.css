@@ -1,0 +1,187 @@
+/* ===============================
+   GLOBAL CRT TERMINAL LOOK
+   =============================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    background:
+        radial-gradient(circle at center, #0b1a12 0%, #020403 70%),
+        repeating-linear-gradient(
+            to bottom,
+            rgba(0, 255, 140, 0.04) 0px,
+            rgba(0, 255, 140, 0.04) 1px,
+            transparent 2px,
+            transparent 4px
+        );
+    color: #7CFF9B;
+    font-family: "JetBrains Mono", monospace;
+    text-shadow: 0 0 4px rgba(124, 255, 155, 0.6);
+    overflow-x: hidden;
+}
+
+/* CRT Noise Overlay */
+body::after {
+    content: "";
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+}
+
+/* ===============================
+   HEADLINE
+   =============================== */
+
+h1 {
+    font-family: "Press Start 2P", monospace;
+    font-size: 1.6rem;
+    color: #AFFFCC;
+    text-shadow:
+        0 0 8px #7CFF9B,
+        0 0 20px rgba(124,255,155,0.4);
+    margin-bottom: 25px;
+    margin-left: 20px;
+}
+
+/* ===============================
+   TERMINAL LOG
+   =============================== */
+
+pre {
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid #7CFF9B;
+    padding: 16px;
+    margin-top: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    box-shadow:
+        inset 0 0 20px rgba(124,255,155,0.2),
+        0 0 20px rgba(124,255,155,0.15);
+}
+
+/* blinking cursor effect */
+pre::after {
+    content: "█";
+    animation: blink 1s steps(1) infinite;
+    margin-left: 4px;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* ===============================
+   TERMINAL BUTTONS
+   =============================== */
+
+.terminal-btn {
+    background: black;
+    color: #7CFF9B;
+    border: 1px solid #7CFF9B;
+    font-family: "JetBrains Mono", monospace;
+    padding: 0.5em 1.2em;
+    margin: 6px;
+    cursor: pointer;
+    text-shadow: 0 0 6px #7CFF9B;
+    box-shadow:
+        inset 0 0 10px rgba(124,255,155,0.2),
+        0 0 10px rgba(124,255,155,0.2);
+    transition: all 0.15s ease;
+}
+
+.terminal-btn:hover {
+    background: #031a10;
+    box-shadow:
+        0 0 20px rgba(124,255,155,0.8);
+}
+
+.terminal-btn:active {
+    transform: translateY(1px);
+    box-shadow:
+        inset 0 0 20px rgba(124,255,155,0.8);
+}
+
+.terminal-btn:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+}
+
+/* ===============================
+   TERMINAL INPUTS
+   =============================== */
+
+.terminal-input {
+    background: black;
+    color: #AFFFCC;
+    border: 1px solid #7CFF9B;
+    padding: 0.5em;
+    margin: 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: bold;
+    outline: none;
+    box-shadow: inset 0 0 8px rgba(124,255,155,0.25);
+}
+
+.terminal-input::placeholder {
+    color: #C28E5C;
+    opacity: 0.6;
+}
+
+.terminal-input:focus {
+    box-shadow:
+        0 0 15px rgba(124,255,155,0.8),
+        inset 0 0 10px rgba(124,255,155,0.4);
+}
+
+.terminal-input:disabled {
+    opacity: 0.3;
+}
+
+/* ===============================
+   ASCII LOGO SUPPORT
+   =============================== */
+
+.ascii {
+    white-space: pre;
+    font-size: 0.75rem;
+    line-height: 1.1;
+    color: #7CFF9B;
+    text-shadow:
+        0 0 6px rgba(124,255,155,0.6);
+    margin-bottom: 20px;
+}
+
+/* ===============================
+   GLITCH TEXT (optional)
+   =============================== */
+
+.glitch {
+    position: relative;
+    color: #7CFF9B;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0.7;
+}
+
+.glitch::before {
+    color: #00ffcc;
+    transform: translate(-1px, 0);
+}
+
+.glitch::after {
+    color: #ffaa00;
+    transform: translate(1px, 0);
+}
